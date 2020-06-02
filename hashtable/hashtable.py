@@ -1,3 +1,4 @@
+import copy
 class HashTableEntry:
     """
     Linked List hash table key/value pair
@@ -13,6 +14,8 @@ class HashTableEntry:
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
+
+from linkedList import LinkedList
 
 
 class HashTable:
@@ -40,7 +43,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        return len(self.data)
+        return self.capacity
 
 
     def get_load_factor(self):
@@ -53,7 +56,7 @@ class HashTable:
         count = 0
         for item in self.data:
             if item:
-                count += 1
+                count += item.length
         num_slot =  self.get_num_slots()
         return count / num_slot
 
@@ -95,7 +98,7 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        return self.fnv1(key) % len(self.data)
+        return self.fnv1(key) % self.capacity
         # return self.djb2(key) % self.capacity
 
     def put(self, key, value):
@@ -108,14 +111,12 @@ class HashTable:
         """
         # Your code here
         my_slot =  self.hash_index(key)
-        # if self.data[my_slot]:
-        #     current = self.data[my_slot]
-        #     print('current', current)
-        #     while current:
-        #         current = current.next
-        #     current = HashTableEntry(key, value)
-        # else:
-        self.data[my_slot] = HashTableEntry(key, value)
+        if self.data[my_slot]:
+            self.data[my_slot].insert_head(HashTableEntry(key, value))
+        else:
+            self.data[my_slot] = LinkedList()
+            my_table_entry = HashTableEntry(key, value)
+            self.data[my_slot].insert_head(my_table_entry)
 
 
     def delete(self, key):
@@ -129,7 +130,7 @@ class HashTable:
         # Your code here
         my_slot = self.hash_index(key)
         if self.data[my_slot]:
-            self.put(key, None)
+            self.data[my_slot].delete_node(key)
         else:
             print(f'No {key} found in the list')
 
@@ -149,8 +150,13 @@ class HashTable:
         if not self.data[my_slot]:
             return None
 
-        if self.data[my_slot].key == key:
-           return self.data[my_slot].value
+        if self.data[my_slot].traverse_node(key):
+            return self.data[my_slot].traverse_node(key).value
+        else:
+            return None
+
+        # if self.data[my_slot].key == key:
+        #    return self.data[my_slot].value
         # else:
           
         #     current = self.data[my_slot].next
@@ -171,7 +177,21 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        self.capacity = new_capacity
+        # cloning the data
+        new_data = copy.deepcopy(self.data)
         self.data = [None] * new_capacity
+        # read data from current
+        for item in new_data:
+            if item:
+                current = item.head
+                while current:
+                    self.put(current.key, current.value)
+                    current = current.next
+
+
+
+
 
 
 
@@ -192,7 +212,7 @@ if __name__ == "__main__":
     ht.put("line_12", "And stood awhile in thought.")
 
     print("")
-
+    print('load factor', ht.get_load_factor())
     # Test storing beyond capacity
     for i in range(1, 13):
         print(ht.get(f"line_{i}"))
@@ -209,3 +229,4 @@ if __name__ == "__main__":
         print(ht.get(f"line_{i}"))
 
     print("")
+    print('load factor', ht.get_load_factor())
