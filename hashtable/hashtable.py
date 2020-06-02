@@ -7,6 +7,9 @@ class HashTableEntry:
         self.value = value
         self.next = None
 
+    def __str__(self):
+        return f"{self.key}, {self.value}"
+
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
@@ -22,6 +25,8 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
+        self.capacity = capacity
+        self.data = [None] * capacity
 
 
     def get_num_slots(self):
@@ -35,6 +40,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        return len(self.data)
 
 
     def get_load_factor(self):
@@ -44,6 +50,12 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        count = 0
+        for item in self.data:
+            if item:
+                count += 1
+        num_slot =  self.get_num_slots()
+        return count / num_slot
 
 
     def fnv1(self, key):
@@ -53,7 +65,16 @@ class HashTable:
         Implement this, and/or DJB2.
         """
 
-        # Your code here
+        #Constants
+        FNV_prime = 1099511628211
+        offset_basis = 14695981039346656037
+
+        #FNV-1a Hash Function
+        hash = offset_basis
+        for char in key:
+            hash = hash * FNV_prime
+            hash = hash ^ ord(char)
+        return hash
 
 
     def djb2(self, key):
@@ -62,7 +83,11 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
-        # Your code here
+                                                                                                                                      
+        hash = 5381
+        for x in key:
+            hash = (( hash << 5) + hash) + ord(x)
+        return hash & 0xFFFFFFFF
 
 
     def hash_index(self, key):
@@ -70,8 +95,8 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.fnv1(key) % len(self.data)
+        # return self.djb2(key) % self.capacity
 
     def put(self, key, value):
         """
@@ -82,6 +107,15 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        my_slot =  self.hash_index(key)
+        if self.data[my_slot]:
+            current = self.data[my_slot]
+            print('current', current)
+            while current:
+                current = current.next
+            current = HashTableEntry(key, value)
+        else:
+            self.data[my_slot] = HashTableEntry(key, value)
 
 
     def delete(self, key):
@@ -93,6 +127,11 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        my_slot = self.hash_index(key)
+        if self.data[my_slot]:
+            self.put(key, None)
+        else:
+            print(f'No {key} found in the list')
 
 
     def get(self, key):
@@ -104,7 +143,25 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        my_slot = self.hash_index(key)
 
+
+        if not self.data[my_slot]:
+            return None
+
+        if self.data[my_slot].key == key:
+           return self.data[my_slot].value
+        else:
+          
+            current = self.data[my_slot].next
+           
+            while current:
+                if current.key is key:
+                    return current.value
+                current = current.next
+            
+            return None
+       
 
     def resize(self, new_capacity):
         """
@@ -114,6 +171,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        self.data = [None] * new_capacity
 
 
 
@@ -147,7 +205,7 @@ if __name__ == "__main__":
     print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
     # Test if data intact after resizing
-    for i in range(1, 13):
-        print(ht.get(f"line_{i}"))
+    # for i in range(1, 13):
+    #     print(ht.get(f"line_{i}"))
 
     print("")
