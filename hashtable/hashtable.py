@@ -108,14 +108,14 @@ class HashTable:
         """
         # Your code here
         my_slot =  self.hash_index(key)
-        if self.data[my_slot]:
-            current = self.data[my_slot]
-            print('current', current)
-            while current:
-                current = current.next
-            current = HashTableEntry(key, value)
-        else:
-            self.data[my_slot] = HashTableEntry(key, value)
+        # if self.data[my_slot]:
+        #     current = self.data[my_slot]
+        #     print('current', current)
+        #     while current:
+        #         current = current.next
+        #     current = HashTableEntry(key, value)
+        # else:
+        self.data[my_slot] = HashTableEntry(key, value)
 
 
     def delete(self, key):
@@ -151,16 +151,16 @@ class HashTable:
 
         if self.data[my_slot].key == key:
            return self.data[my_slot].value
-        else:
+        # else:
           
-            current = self.data[my_slot].next
+        #     current = self.data[my_slot].next
            
-            while current:
-                if current.key is key:
-                    return current.value
-                current = current.next
+        #     while current:
+        #         if current.key is key:
+        #             return current.value
+        #         current = current.next
             
-            return None
+        #     return None
        
 
     def resize(self, new_capacity):
@@ -205,7 +205,7 @@ if __name__ == "__main__":
     print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
     # Test if data intact after resizing
-    # for i in range(1, 13):
-    #     print(ht.get(f"line_{i}"))
+    for i in range(1, 13):
+        print(ht.get(f"line_{i}"))
 
     print("")
