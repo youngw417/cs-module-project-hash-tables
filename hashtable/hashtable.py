@@ -1,4 +1,4 @@
-import copy
+# import copy
 class HashTableEntry:
     """
     Linked List hash table key/value pair
@@ -15,7 +15,7 @@ class HashTableEntry:
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
 
-from linkedList import LinkedList
+# from linkedList import LinkedList
 
 
 class HashTable:
@@ -56,7 +56,11 @@ class HashTable:
         count = 0
         for item in self.data:
             if item:
-                count += item.length
+                current = item
+                while current:
+                    count += 1
+                    current = current.next
+                
         num_slot =  self.get_num_slots()
         return count / num_slot
 
@@ -110,13 +114,21 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # my_slot =  self.hash_index(key)
+        # if self.data[my_slot]:
+        #     self.data[my_slot].insert_head(HashTableEntry(key, value))
+        # else:
+        #     self.data[my_slot] = LinkedList()
+        #     my_table_entry = HashTableEntry(key, value)
+        #     self.data[my_slot].insert_head(my_table_entry)
         my_slot =  self.hash_index(key)
         if self.data[my_slot]:
-            self.data[my_slot].insert_head(HashTableEntry(key, value))
+            new_entry = HashTableEntry(key, value)
+            new_entry.next = self.data[my_slot]
+            self.data[my_slot] = new_entry
+
         else:
-            self.data[my_slot] = LinkedList()
-            my_table_entry = HashTableEntry(key, value)
-            self.data[my_slot].insert_head(my_table_entry)
+            self.data[my_slot] = HashTableEntry(key, value)
 
 
     def delete(self, key):
@@ -128,12 +140,30 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # my_slot = self.hash_index(key)
+        # if self.data[my_slot]:
+        #     current = self.data[my_slot].delete_node(key)
+        # else:
+        #     print(f'No {key} found in the list')
         my_slot = self.hash_index(key)
-        if self.data[my_slot]:
-            self.data[my_slot].delete_node(key)
+        current = self.data[my_slot]
+        if not current:
+            return None
+        if current.key == key:
+            self.data[my_slot] = current.next
         else:
+            previous =  current
+            current = current.next
+            while current:
+                if current.key == key:
+                    previous.next = current.next
+                    return 
+                else:
+                    current =  current.next
+                    previous = previous.next
+                
+        
             print(f'No {key} found in the list')
-
 
     def get(self, key):
         """
@@ -150,23 +180,18 @@ class HashTable:
         if not self.data[my_slot]:
             return None
 
-        if self.data[my_slot].traverse_node(key):
-            return self.data[my_slot].traverse_node(key).value
-        else:
-            return None
-
-        # if self.data[my_slot].key == key:
-        #    return self.data[my_slot].value
+        # if self.data[my_slot].trav:erse_node(key):
+        #     return self.data[my_slot].traverse_node(key).value
         # else:
-          
-        #     current = self.data[my_slot].next
-           
-        #     while current:
-        #         if current.key is key:
-        #             return current.value
-        #         current = current.next
-            
         #     return None
+
+        else:
+            current = self.data[my_slot]
+            while current:
+                if current.key == key:
+                    return current.value
+                current = current.next
+            return None
        
 
     def resize(self, new_capacity):
@@ -179,12 +204,12 @@ class HashTable:
         # Your code here
         self.capacity = new_capacity
         # cloning the data
-        new_data = copy.deepcopy(self.data)
+        new_data = list.copy(self.data)
         self.data = [None] * new_capacity
         # read data from current
         for item in new_data:
             if item:
-                current = item.head
+                current = item
                 while current:
                     self.put(current.key, current.value)
                     current = current.next
